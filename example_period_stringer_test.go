@@ -64,18 +64,22 @@ func ExamplePeriodStringer_replacing() {
 	ts := time.Date(2020, 8, 11, 0, 2, 1, 6, time.UTC)
 
 	fmt.Println("today is", ts.Format(format))
+	// today is August 11, 2020
 
 	p, ok := pf.Make(ts, "prev week")
 	if !ok {
 		fmt.Println("the shortcut doesn't exist")
 	}
 	fmt.Println(p)
+	// previous week is (August 3, 2020 — August 9, 2020)
 
 	p = pf.Require(ts, rdate.PeriodPrevQuart)
 	fmt.Println(p)
+	// previous quarter is (April 1, 2020 — June 30, 2020)
 
 	p = pf.Require(ts, rdate.PeriodThisMonth)
 	fmt.Println(p)
+	// this month is (August 1, 2020 — August 31, 2020)
 
 	// Output:
 	// today is August 11, 2020

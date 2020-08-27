@@ -28,6 +28,7 @@ func ExamplePeriodFactory_Extend() {
 	if !ok {
 		fmt.Println("'prev decade' shortcut is not implemented")
 	}
+	// 'prev decade' shortcut is not implemented
 
 	f.Extend([]rdate.PeriodRule{&prevDecadePeriodRule{}})
 
@@ -37,8 +38,11 @@ func ExamplePeriodFactory_Extend() {
 	}
 
 	fmt.Println(p)
+	// 1980-01-01 00:00:00 — 1990-12-31 23:59:59
 	fmt.Println(p.From().Time())
+	// 1980-01-01 00:00:00 +0000 UTC
 	fmt.Println(p.To().Time())
+	// 1990-12-31 23:59:59.999999999 +0000 UTC
 
 	// Output:
 	// 'prev decade' shortcut is not implemented

@@ -41,7 +41,7 @@ func TestRequireTime(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual := rdate.RequireTime(tc.pivot, tc.sc)
-			require.Equal(t, tc.expected, actual.Time())
+			timeEqual(t, actual, tc.expected)
 		})
 	}
 }
@@ -73,13 +73,16 @@ func TestNewTime(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, ok := rdate.NewTime(tc.pivot, tc.sc)
-			require.Equal(t, tc.expectedOK, ok)
-			require.Equal(t, tc.expected, actual.Time())
+			if ok != tc.expectedOK {
+				t.Errorf("expected %t but it isn't %t", tc.expectedOK, ok)
+			}
+
+			timeEqual(t, actual, tc.expected)
 		})
 	}
 }
 
-func TestDefaultTimeFactory_existanceOfRules(t *testing.T) {
+func TestDefaultTimeFactory_existenceOfRules(t *testing.T) {
 	testCases := []struct {
 		name     string
 		pivot    time.Time
@@ -242,9 +245,11 @@ func TestDefaultTimeFactory_existanceOfRules(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			actual, ok := rdate.NewTime(tc.pivot, tc.sc)
 
-			if !ok || !tc.expected.Equal(actual.Time()) {
-				t.Errorf("Time = %s; expected %s", actual.Time(), tc.expected)
+			if !ok {
+				t.Errorf("expected ok but it isn't")
 			}
+
+			timeEqual(t, actual, tc.expected)
 		})
 	}
 }
@@ -266,15 +271,19 @@ func TestTimeFactory_Extend(t *testing.T) {
 
 	d, ok := f.Make(pivot, "my test time")
 
-	require.False(t, ok)
+	if ok {
+		t.Errorf("expected ok = false but it's true")
+	}
 	require.Equal(t, rdate.Time{}, d)
 
 	f.Extend([]rdate.TimeRule{&testTimeRule{}})
 
 	d, ok = f.Make(pivot, "my test time")
 
-	require.True(t, ok)
-	require.Equal(t, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC), d.Time())
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
+	timeEqual(t, d, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC))
 }
 
 type testTimeStringer struct{}
@@ -288,14 +297,18 @@ func TestTimeFactory_SetStringer(t *testing.T) {
 
 	d, ok := f.Make(pivot, rdate.TimeStartOfPrevDay)
 
-	require.True(t, ok)
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
 	require.Equal(t, "2010-02-28 00:00:00", d.String())
 
 	f.SetStringer(&testTimeStringer{})
 
 	d, ok = f.Make(pivot, rdate.TimeStartOfPrevDay)
 
-	require.True(t, ok)
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
 	require.Equal(t, "test stringer", d.String())
 }
 
@@ -358,7 +371,9 @@ func TestSetDefaultTimeFactory(t *testing.T) {
 
 	d, ok := rdate.NewTime(pivot, "my test time")
 
-	require.False(t, ok)
+	if ok {
+		t.Errorf("expected ok = false but it's true")
+	}
 	require.Equal(t, rdate.Time{}, d)
 
 	f := rdate.NewTimeFactory()
@@ -368,6 +383,16 @@ func TestSetDefaultTimeFactory(t *testing.T) {
 
 	d, ok = rdate.NewTime(pivot, "my test time")
 
-	require.True(t, ok)
-	require.Equal(t, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC), d.Time())
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
+	timeEqual(t, d, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC))
+}
+
+func timeEqual(t *testing.T, actual rdate.Time, expected time.Time) {
+	t.Helper()
+
+	if !expected.Equal(actual.Time()) {
+		t.Errorf("Date = %s; expected %s", actual.Time(), expected)
+	}
 }

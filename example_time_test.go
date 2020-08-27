@@ -26,6 +26,7 @@ func ExampleTimeFactory_Extend() {
 	if !ok {
 		fmt.Println("'my birthday this year' shortcut is not implemented")
 	}
+	// 'my birthday this year' shortcut is not implemented
 
 	f.Extend([]rdate.TimeRule{&myBirthdayTimeRule{}})
 
@@ -35,7 +36,9 @@ func ExampleTimeFactory_Extend() {
 	}
 
 	fmt.Println(d)
+	// 2004-12-13 00:00:00
 	fmt.Println(d.Time())
+	// 2004-12-13 00:00:00 +0000 UTC
 
 	// Output:
 	// 'my birthday this year' shortcut is not implemented

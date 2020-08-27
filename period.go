@@ -64,7 +64,7 @@ func (f *PeriodFactory) Make(pivot time.Time, sc PeriodShortcut) (p Period, ok b
 //
 // If the rule is not found, the result will be a zero-value of Period.
 //
-// This method should be used only if you are sure about existance of given shortcut.
+// This method should be used only if you are sure about existence of given shortcut.
 func (f *PeriodFactory) Require(pivot time.Time, sc PeriodShortcut) Period {
 	p, ok := f.Make(pivot, sc)
 	if !ok {

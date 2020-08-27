@@ -23,12 +23,15 @@ func ExampleTimeStringer_replacing() {
 
 	d := tf.Require(time.Date(2020, 8, 11, 0, 2, 1, 6, time.UTC), rdate.TimeAsIs)
 	fmt.Println(d)
+	// 11 Aug 20 00:02 UTC
 
 	d = tf.Require(time.Date(2020, 12, 13, 0, 2, 1, 6, time.UTC), rdate.TimeAsIs)
 	fmt.Println(d)
+	// Happy birthday, Daniel!
 
 	d = tf.Require(time.Date(1999, 2, 11, 0, 2, 1, 6, time.UTC), rdate.TimeAsIs)
 	fmt.Println(d)
+	// 11 Feb 99 00:02 UTC
 
 	// Output:
 	// 11 Aug 20 00:02 UTC

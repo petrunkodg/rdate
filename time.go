@@ -76,7 +76,7 @@ func (f *TimeFactory) Make(pivot time.Time, sc TimeShortcut) (t Time, ok bool) {
 //
 // If the rule is not found, the result will be a zero-value of Time.
 //
-// This method should be used only if you are sure about existance of given shortcut.
+// This method should be used only if you are sure about existence of given shortcut.
 func (f *TimeFactory) Require(pivot time.Time, sc TimeShortcut) Time {
 	t, ok := f.Make(pivot, sc)
 	if !ok {

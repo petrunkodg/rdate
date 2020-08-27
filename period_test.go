@@ -8,18 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func periodEqual(t *testing.T, actual rdate.Period, expectedFrom, expectedTo time.Time) {
-	t.Helper()
-
-	if !expectedFrom.Equal(actual.From().Time()) {
-		t.Errorf("Date = %s; expected %s", actual.From().Time(), expectedFrom)
-	}
-
-	if !expectedTo.Equal(actual.To().Time()) {
-		t.Errorf("Date = %s; expected %s", actual.To().Time(), expectedTo)
-	}
-}
-
 func TestNewPeriodFactory(t *testing.T) {
 	f1 := rdate.NewPeriodFactory()
 	f2 := rdate.NewPeriodFactory()
@@ -29,7 +17,7 @@ func TestNewPeriodFactory(t *testing.T) {
 	require.Equal(t, f1, f2)
 }
 
-func TestDefaultPediodFactory_existanceOfRules(t *testing.T) {
+func TestDefaultPediodFactory_existenceOfRules(t *testing.T) {
 	testCases := []struct {
 		name         string
 		pivot        time.Time
@@ -257,14 +245,18 @@ func TestPeriodFactory_SetStringer(t *testing.T) {
 
 	p, ok := f.Make(pivot, rdate.PeriodPrevWeek)
 
-	require.True(t, ok)
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
 	require.Equal(t, "2010-02-22 00:00:00 — 2010-02-28 23:59:59", p.String())
 
 	f.SetStringer(&testPeriodStringer{})
 
 	p, ok = f.Make(pivot, rdate.PeriodPrevWeek)
 
-	require.True(t, ok)
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
 	require.Equal(t, "test period stringer", p.String())
 }
 
@@ -274,7 +266,9 @@ func TestPeriodFactory_SetTimeFactory(t *testing.T) {
 	f := rdate.NewPeriodFactory()
 	p, ok := f.Make(pivot, rdate.PeriodPrevWeek)
 
-	require.True(t, ok)
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
 	require.Equal(t, "2010-02-22 00:00:00 — 2010-02-28 23:59:59", p.String())
 
 	tf := rdate.NewTimeFactory()
@@ -284,7 +278,9 @@ func TestPeriodFactory_SetTimeFactory(t *testing.T) {
 
 	p, ok = f.Make(pivot, rdate.PeriodPrevWeek)
 
-	require.True(t, ok)
+	if !ok {
+		t.Errorf("expected ok but it isn't")
+	}
 	require.Equal(t, "test stringer — test stringer", p.String())
 }
 
@@ -313,4 +309,16 @@ func TestSetDefaultPeriodFactory(t *testing.T) {
 	periodEqual(t, p,
 		time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC),
 		time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC))
+}
+
+func periodEqual(t *testing.T, actual rdate.Period, expectedFrom, expectedTo time.Time) {
+	t.Helper()
+
+	if !expectedFrom.Equal(actual.From().Time()) {
+		t.Errorf("Date = %s; expected %s", actual.From().Time(), expectedFrom)
+	}
+
+	if !expectedTo.Equal(actual.To().Time()) {
+		t.Errorf("Date = %s; expected %s", actual.To().Time(), expectedTo)
+	}
 }
