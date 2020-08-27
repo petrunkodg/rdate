@@ -1,8 +1,8 @@
-[![GoDoc reference example](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/nanomsg.org/go/mangos/v2)
+[![GoDoc](https://godoc.org/github.com/petrunkodg/rdate?status.svg)](https://godoc.org/github.com/petrunkodg/rdate)
 
 # rdate
 
-Golang package which implements a few primitives to work with dates or times conveniently.
+A golang package which implements a few primitives to work with dates or times conveniently.
 It's especially useful for creating reports.
 
 # Overview
@@ -60,4 +60,4 @@ Simple example (Period):
 	// 2020-04-01 00:00:00 — 2020-06-30 23:59:59
 	// 2020-08-01 00:00:00 — 2020-08-31 23:59:59
 
-For more information and examples see [godoc](https://godoclink).
+For more information and examples see [godoc](https://godoc.org/github.com/petrunkodg/rdate).
