@@ -1,0 +1,15 @@
+image: registry.gitlab.com/petrunkodg/builder:latest
+
+stages:
+  - test
+
+tests:
+  stage: test
+  script:
+    - make test
+
+coverage:
+  stage: test
+  script:
+    - make coverage
+    - go tool cover -func=coverage.out
