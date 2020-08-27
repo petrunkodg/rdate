@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/petrunkodg/rdate"
+	"github.com/petrunkodg/rdate"
 )
 
 const format = "January 2, 2006"

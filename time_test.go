@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/petrunkodg/rdate"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/petrunkodg/rdate"
 )
 
 func TestNewTimeFactory(t *testing.T) {

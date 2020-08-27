@@ -1,3 +1,5 @@
+[![GoDoc reference example](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/nanomsg.org/go/mangos/v2)
+
 # rdate
 
 Golang package which implements a few primitives to work with dates or times conveniently.

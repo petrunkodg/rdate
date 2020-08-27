@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.com/petrunkodg/rdate"
+	"github.com/petrunkodg/rdate"
 )
 
 type myBirthdayTimeRule struct{}

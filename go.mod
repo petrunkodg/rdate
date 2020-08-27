@@ -1,4 +1,4 @@
-module gitlab.com/petrunkodg/rdate
+module github.com/petrunkodg/rdate
 
 go 1.14
 

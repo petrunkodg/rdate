@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/petrunkodg/rdate"
+	"github.com/petrunkodg/rdate"
 )
 
 func TestDefaultPeriodStringer(t *testing.T) {
