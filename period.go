@@ -62,7 +62,7 @@ func (f *PeriodFactory) Make(pivot time.Time, sc PeriodShortcut) (p Period, ok b
 // Require creates new Period object using the rule which is found (or not)
 // by the given PeriodShortcut.
 //
-// If the rule is not found, the result will be a zero-value of Period.
+// If the rule is not found, the result will be a zero-value of Period type.
 //
 // This method should be used only if you are sure about existence of given shortcut.
 func (f *PeriodFactory) Require(pivot time.Time, sc PeriodShortcut) Period {
@@ -75,7 +75,7 @@ func (f *PeriodFactory) Require(pivot time.Time, sc PeriodShortcut) Period {
 }
 
 // SetTimeFactory sets your own TimeFactory which will be passed to
-// a rule Calculate method during calculation of a Make call.
+// a rule Calculate method during the calculation of a Make call.
 func (f *PeriodFactory) SetTimeFactory(tf *TimeFactory) {
 	f.tf = tf
 }
@@ -160,5 +160,14 @@ func (p Period) To() Time {
 }
 
 func (p Period) String() string {
+	if p.s == nil {
+		return ""
+	}
+
 	return p.s.String(p.from, p.to, p.sc)
+}
+
+// IsZero reports if the value is a zero-value of the type
+func (p Period) IsZero() bool {
+	return p.s == nil && p.from.IsZero() && p.to.IsZero()
 }

@@ -43,7 +43,6 @@ func ExamplePeriodFactory_Extend() {
 	// 1980-01-01 00:00:00 +0000 UTC
 	fmt.Println(p.To().Time())
 	// 1990-12-31 23:59:59.999999999 +0000 UTC
-
 	// Output:
 	// 'prev decade' shortcut is not implemented
 	// 1980-01-01 00:00:00 — 1990-12-31 23:59:59

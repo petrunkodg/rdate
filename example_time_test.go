@@ -39,7 +39,6 @@ func ExampleTimeFactory_Extend() {
 	// 2004-12-13 00:00:00
 	fmt.Println(d.Time())
 	// 2004-12-13 00:00:00 +0000 UTC
-
 	// Output:
 	// 'my birthday this year' shortcut is not implemented
 	// 2004-12-13 00:00:00

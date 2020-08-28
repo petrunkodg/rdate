@@ -5,16 +5,15 @@ import (
 	"time"
 
 	"github.com/petrunkodg/rdate"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewTimeFactory(t *testing.T) {
 	f1 := rdate.NewTimeFactory()
 	f2 := rdate.NewTimeFactory()
 
-	require.NotSame(t, f1, f2)
-	// TODO: check the difference between the internal maps
-	require.Equal(t, f1, f2)
+	if f1 == f2 {
+		t.Errorf("both the factories are the same")
+	}
 }
 
 func TestRequireTime(t *testing.T) {
@@ -269,21 +268,23 @@ func TestTimeFactory_Extend(t *testing.T) {
 
 	f := rdate.NewTimeFactory()
 
-	d, ok := f.Make(pivot, "my test time")
+	tm, ok := f.Make(pivot, "my test time")
 
 	if ok {
 		t.Errorf("expected ok = false but it's true")
 	}
-	require.Equal(t, rdate.Time{}, d)
+	if !tm.IsZero() {
+		t.Errorf("expected tm has a zero-value but it doesn't")
+	}
 
 	f.Extend([]rdate.TimeRule{&testTimeRule{}})
 
-	d, ok = f.Make(pivot, "my test time")
+	tm, ok = f.Make(pivot, "my test time")
 
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	timeEqual(t, d, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC))
+	timeEqual(t, tm, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC))
 }
 
 type testTimeStringer struct{}
@@ -291,29 +292,47 @@ type testTimeStringer struct{}
 func (s *testTimeStringer) String(t time.Time) string { return "test stringer" }
 
 func TestTimeFactory_SetStringer(t *testing.T) {
+	expected := []string{
+		"2010-02-28 00:00:00",
+		"test stringer",
+	}
+
 	pivot := time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC)
 
 	f := rdate.NewTimeFactory()
 
-	d, ok := f.Make(pivot, rdate.TimeStartOfPrevDay)
+	tm, ok := f.Make(pivot, rdate.TimeStartOfPrevDay)
 
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	require.Equal(t, "2010-02-28 00:00:00", d.String())
+	if tm.String() != expected[0] {
+		t.Errorf("expected '%s' but there is '%s'", expected[0], tm.String())
+	}
 
 	f.SetStringer(&testTimeStringer{})
 
-	d, ok = f.Make(pivot, rdate.TimeStartOfPrevDay)
+	tm, ok = f.Make(pivot, rdate.TimeStartOfPrevDay)
 
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	require.Equal(t, "test stringer", d.String())
+	if tm.String() != expected[1] {
+		t.Errorf("expected '%s' but there is '%s'", expected[1], tm.String())
+	}
+}
+
+func TestTimeFactory_SetNilStringer(t *testing.T) {
+	tf := rdate.NewTimeFactory()
+	tf.SetStringer(nil)
+
+	tm := tf.Require(time.Now(), rdate.TimeAsIs)
+	if tm.String() != "" {
+		t.Errorf("expected an empty string")
+	}
 }
 
 func TestTimeFactory_SetStartOfWeek(t *testing.T) {
-
 	testCases := []struct {
 		name           string
 		ts             time.Time
@@ -369,24 +388,26 @@ func TestTimeFactory_SetStartOfWeek(t *testing.T) {
 func TestSetDefaultTimeFactory(t *testing.T) {
 	pivot := time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC)
 
-	d, ok := rdate.NewTime(pivot, "my test time")
+	tm, ok := rdate.NewTime(pivot, "my test time")
 
 	if ok {
 		t.Errorf("expected ok = false but it's true")
 	}
-	require.Equal(t, rdate.Time{}, d)
+	if !tm.IsZero() {
+		t.Errorf("expected tm has a zero-value but doesn't")
+	}
 
 	f := rdate.NewTimeFactory()
 	f.Extend([]rdate.TimeRule{&testTimeRule{}})
 
 	rdate.SetDefaultTimeFactory(f)
 
-	d, ok = rdate.NewTime(pivot, "my test time")
+	tm, ok = rdate.NewTime(pivot, "my test time")
 
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	timeEqual(t, d, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC))
+	timeEqual(t, tm, time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC))
 }
 
 func timeEqual(t *testing.T, actual rdate.Time, expected time.Time) {

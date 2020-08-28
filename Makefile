@@ -10,3 +10,4 @@ test: modules
 
 coverage: modules
 	$(GO) test -race -v -covermode=atomic -coverpkg=./... -coverprofile=coverage.out ./...
+	cat coverage.out >> coverage.txt

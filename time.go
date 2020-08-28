@@ -1,6 +1,8 @@
 package rdate
 
-import "time"
+import (
+	"time"
+)
 
 type TimeShortcut string
 
@@ -204,5 +206,14 @@ func (t Time) Time() time.Time {
 }
 
 func (t Time) String() string {
+	if t.s == nil {
+		return ""
+	}
+
 	return t.s.String(t.t)
+}
+
+// IsZero reports if the value is a zero-value of the type
+func (t Time) IsZero() bool {
+	return t.s == nil && t.t.IsZero()
 }

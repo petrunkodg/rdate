@@ -5,16 +5,15 @@ import (
 	"time"
 
 	"github.com/petrunkodg/rdate"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewPeriodFactory(t *testing.T) {
 	f1 := rdate.NewPeriodFactory()
 	f2 := rdate.NewPeriodFactory()
 
-	require.NotSame(t, f1, f2)
-	// TODO: check the difference between the internal maps
-	require.Equal(t, f1, f2)
+	if f1 == f2 {
+		t.Errorf("both the factories are the same")
+	}
 }
 
 func TestDefaultPediodFactory_existenceOfRules(t *testing.T) {
@@ -215,8 +214,9 @@ func TestPeriodFactory_Extend(t *testing.T) {
 	if ok {
 		t.Errorf("expected false but it is true")
 	}
-
-	require.Equal(t, rdate.Period{}, p)
+	if !p.IsZero() {
+		t.Errorf("expected p has a zero-value but it doesn't")
+	}
 
 	f.Extend([]rdate.PeriodRule{&testPeriodRule{}})
 
@@ -239,6 +239,10 @@ func (s *testPeriodStringer) String(from, to rdate.Time,
 }
 
 func TestPeriodFactory_SetStringer(t *testing.T) {
+	expected := []string{
+		"2010-02-22 00:00:00 — 2010-02-28 23:59:59",
+		"test period stringer",
+	}
 	pivot := time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC)
 
 	f := rdate.NewPeriodFactory()
@@ -248,7 +252,9 @@ func TestPeriodFactory_SetStringer(t *testing.T) {
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	require.Equal(t, "2010-02-22 00:00:00 — 2010-02-28 23:59:59", p.String())
+	if p.String() != expected[0] {
+		t.Errorf("expected '%s' but there is '%s'", expected[0], p.String())
+	}
 
 	f.SetStringer(&testPeriodStringer{})
 
@@ -257,10 +263,26 @@ func TestPeriodFactory_SetStringer(t *testing.T) {
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	require.Equal(t, "test period stringer", p.String())
+	if p.String() != expected[1] {
+		t.Errorf("expected '%s' but there is '%s'", expected[1], p.String())
+	}
+}
+
+func TestPeriodFactory_SetNilStringer(t *testing.T) {
+	pf := rdate.NewPeriodFactory()
+	pf.SetStringer(nil)
+
+	pm := pf.Require(time.Now(), rdate.PeriodPrevWeek)
+	if pm.String() != "" {
+		t.Errorf("expected an empty string")
+	}
 }
 
 func TestPeriodFactory_SetTimeFactory(t *testing.T) {
+	expected := []string{
+		"2010-02-22 00:00:00 — 2010-02-28 23:59:59",
+		"test stringer — test stringer",
+	}
 	pivot := time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC)
 
 	f := rdate.NewPeriodFactory()
@@ -269,7 +291,9 @@ func TestPeriodFactory_SetTimeFactory(t *testing.T) {
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	require.Equal(t, "2010-02-22 00:00:00 — 2010-02-28 23:59:59", p.String())
+	if p.String() != expected[0] {
+		t.Errorf("expected '%s' but there is '%s'", expected[0], p.String())
+	}
 
 	tf := rdate.NewTimeFactory()
 	tf.SetStringer(&testTimeStringer{})
@@ -281,7 +305,9 @@ func TestPeriodFactory_SetTimeFactory(t *testing.T) {
 	if !ok {
 		t.Errorf("expected ok but it isn't")
 	}
-	require.Equal(t, "test stringer — test stringer", p.String())
+	if p.String() != expected[1] {
+		t.Errorf("expected '%s' but there is '%s'", expected[1], p.String())
+	}
 }
 
 func TestSetDefaultPeriodFactory(t *testing.T) {
@@ -293,7 +319,9 @@ func TestSetDefaultPeriodFactory(t *testing.T) {
 		t.Errorf("expected false but it is true")
 	}
 
-	require.Equal(t, rdate.Period{}, p)
+	if !p.IsZero() {
+		t.Errorf("expected p has a zero-value but it doesn't")
+	}
 
 	f := rdate.NewPeriodFactory()
 	f.Extend([]rdate.PeriodRule{&testPeriodRule{}})

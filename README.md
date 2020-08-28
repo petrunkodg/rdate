@@ -1,16 +1,19 @@
 [![GoDoc](https://godoc.org/github.com/petrunkodg/rdate?status.svg)](https://godoc.org/github.com/petrunkodg/rdate)
+[![coverage](https://img.shields.io/codecov/c/github/petrunkodg/rdate)](https://codecov.io/gh/petrunkodg/rdate)
 
 # rdate
 
-A golang package which implements a few primitives to work with dates or times conveniently.
+A golang package which implements a few primitives to work with time and periods conveniently.
 It's especially useful for creating reports.
+
+The package provides some presets of time and period calculation. Also it can be extended.
 
 # Overview
 
-- 25 default rules of time calculation
-- 12 default rules of period calculation
+- 25 default rules (presets) of time calculation
+- 12 default rules (presets) of period calculation
 - You can add new ones or replace any of them
-- You can set your own stringers for Time or Period types or decorate the default ones
+- You can set your own stringer for Time or Period types or decorate the default ones
 
 # Examples
 
