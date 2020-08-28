@@ -80,6 +80,7 @@ func ExamplePeriodStringer_replacing() {
 	p = pf.Require(ts, rdate.PeriodThisMonth)
 	fmt.Println(p)
 	// this month is (August 1, 2020 — August 31, 2020)
+
 	// Output:
 	// today is August 11, 2020
 	// previous week is (August 3, 2020 — August 9, 2020)
