@@ -8,14 +8,20 @@ It's especially useful for creating reports.
 
 The package provides some presets of time and period calculation. Also it can be extended.
 
-# Overview
+## Getting
+
+```
+go get -u github.com/petrunkodg/rdate
+```
+
+## Overview
 
 - 25 default rules (presets) of time calculation
 - 12 default rules (presets) of period calculation
 - You can add new ones or replace any of them
 - You can set your own stringer for Time or Period types or decorate the default ones
 
-# Examples
+## Examples
 
 Simple example (Time):
 
@@ -64,3 +70,12 @@ Simple example (Period):
 	// 2020-08-01 00:00:00 — 2020-08-31 23:59:59
 
 For more information and examples see [godoc](https://godoc.org/github.com/petrunkodg/rdate).
+
+
+## Contact
+
+Danila Petrunko <petrunkodg@gmail.com>
+
+## License
+
+Source code is available under the MIT [License](/LICENSE).
