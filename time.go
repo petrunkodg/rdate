@@ -5,6 +5,7 @@
 package rdate
 
 import (
+	"sync"
 	"time"
 )
 
@@ -45,13 +46,42 @@ const (
 	StartOfWeekSunday
 )
 
-type TimeFactory struct {
+// TimeFactory is used to make new Time objects by passing the pivot and the shortcut.
+// Method NewTime and RequireTime uses the default time factory which is created
+// by calling NewTimeFactory during the init.
+type TimeFactory interface {
+	// Make creates a new Time object by using the rule which is found (or not)
+	// by the given TimeShortcut.
+	// If the rule is not found, ok will be false and t will be a zero-value of Time.
+	Make(pivot time.Time, sc TimeShortcut) (t Time, ok bool)
+
+	// Require creates new Time object by using the rule which is found (or not)
+	// by the given TimeShortcut.
+	// If the rule is not found, the result will be a zero-value of Time.
+	// This method should be used only if you are sure about existence of given shortcut.
+	Require(pivot time.Time, sc TimeShortcut) Time
+
+	// Extend appends new rules (or replaces existing ones if there are any rules
+	// with the same shortcuts) to the time factory.
+	Extend(rules []TimeRule)
+
+	// SetStartOfWeek sets the start of the week for the time factory.
+	// It can be Monday or Sunday.
+	// The default value is Monday.
+	SetStartOfWeek(s StartOfWeek)
+
+	// SetStringer sets your own TimeStringer implementation
+	// for every new Time object which is created by this factory.
+	SetStringer(s TimeStringer)
+}
+
+type unsafeTimeFactory struct {
 	rules map[TimeShortcut]TimeRule
 	s     TimeStringer
 }
 
-func newTimeFactory(rules []TimeRule, s TimeStringer) *TimeFactory {
-	f := &TimeFactory{
+func newUnsafeTimeFactory(rules []TimeRule, s TimeStringer) TimeFactory {
+	f := &unsafeTimeFactory{
 		rules: map[TimeShortcut]TimeRule{},
 		s:     s,
 	}
@@ -61,11 +91,8 @@ func newTimeFactory(rules []TimeRule, s TimeStringer) *TimeFactory {
 	return f
 }
 
-// Make creates a new Time object using the rule which is found (or not)
-// by the given TimeShortcut.
-//
-// If the rule is not found, ok will be false and t will be a zero-value of Time.
-func (f *TimeFactory) Make(pivot time.Time, sc TimeShortcut) (t Time, ok bool) {
+// Make implements the TimeFactory Make method.
+func (f *unsafeTimeFactory) Make(pivot time.Time, sc TimeShortcut) (t Time, ok bool) {
 	r, ok := f.rules[sc]
 	if !ok {
 		return Time{}, false
@@ -77,13 +104,8 @@ func (f *TimeFactory) Make(pivot time.Time, sc TimeShortcut) (t Time, ok bool) {
 	}, true
 }
 
-// Require creates new Time object using the rule which is found (or not)
-// by the given TimeShortcut.
-//
-// If the rule is not found, the result will be a zero-value of Time.
-//
-// This method should be used only if you are sure about existence of given shortcut.
-func (f *TimeFactory) Require(pivot time.Time, sc TimeShortcut) Time {
+// Require implements the TimeFactory Require method.
+func (f *unsafeTimeFactory) Require(pivot time.Time, sc TimeShortcut) Time {
 	t, ok := f.Make(pivot, sc)
 	if !ok {
 		t = Time{}
@@ -92,25 +114,20 @@ func (f *TimeFactory) Require(pivot time.Time, sc TimeShortcut) Time {
 	return t
 }
 
-// SetStringer sets your own TimeStringer implementation
-// for every new Time object which is created by this factory.
-func (f *TimeFactory) SetStringer(s TimeStringer) {
+// SetStringer implements the TimeFactory SetStringer method.
+func (f *unsafeTimeFactory) SetStringer(s TimeStringer) {
 	f.s = s
 }
 
-// Extend appends new rules or replaces existing ones
-// (if there were any rules with the same shortcuts) to the time factory.
-func (f *TimeFactory) Extend(rules []TimeRule) {
+// Extend implements the TimeFactory Extend method.
+func (f *unsafeTimeFactory) Extend(rules []TimeRule) {
 	for _, r := range rules {
 		f.rules[r.Shortcut()] = r
 	}
 }
 
-// SetStartOfWeek sets the start of the week for this time factory.
-// It can be Monday or Sunday.
-//
-// The default value is Monday.
-func (f *TimeFactory) SetStartOfWeek(s StartOfWeek) {
+// SetStartOfWeek implements the TimeFactory SetStartOfWeek method.
+func (f *unsafeTimeFactory) SetStartOfWeek(s StartOfWeek) {
 	var rules []TimeRule
 	switch s {
 	case StartOfWeekMonday:
@@ -132,16 +149,7 @@ func (f *TimeFactory) SetStartOfWeek(s StartOfWeek) {
 	f.Extend(rules)
 }
 
-func (f *TimeFactory) copy() *TimeFactory {
-	rules := make([]TimeRule, 0, len(f.rules))
-	for _, r := range f.rules {
-		rules = append(rules, r)
-	}
-
-	return newTimeFactory(rules, f.s)
-}
-
-var defaultTimeFactory = newTimeFactory([]TimeRule{
+var defaultRules = []TimeRule{
 	&timeRuleAsIs{},
 	thisDayStartRule,
 	thisDayEndRule,
@@ -167,11 +175,78 @@ var defaultTimeFactory = newTimeFactory([]TimeRule{
 	&timeRuleEndOfThisYear{},
 	&timeRuleStartOfPrevYear{},
 	&timeRuleEndOfPrevYear{},
-}, DefaultTimeStringer)
+}
 
-// NewTimeFactory returns a copy of the default time factory
-func NewTimeFactory() *TimeFactory {
-	return defaultTimeFactory.copy()
+var defaultTimeFactory = NewTimeFactory()
+
+// safeTimeFactory is a decorator which wraps a time factory for concurrent use
+// by multiple goroutines.
+type safeTimeFactory struct {
+	f  TimeFactory
+	rw sync.RWMutex
+}
+
+// Make implements the TimeFactory Make method.
+func (f *safeTimeFactory) Make(pivot time.Time, sc TimeShortcut) (t Time, ok bool) {
+	f.rw.RLock()
+	defer f.rw.RUnlock()
+
+	return f.f.Make(pivot, sc)
+}
+
+// Require implements the TimeFactory Require method.
+func (f *safeTimeFactory) Require(pivot time.Time, sc TimeShortcut) Time {
+	f.rw.RLock()
+	defer f.rw.RUnlock()
+
+	return f.f.Require(pivot, sc)
+}
+
+// SetStringer implements the TimeFactory SetStringer method.
+func (f *safeTimeFactory) SetStringer(s TimeStringer) {
+	f.rw.Lock()
+	defer f.rw.Unlock()
+
+	f.f.SetStringer(s)
+}
+
+// Extend implements the TimeFactory Extend method.
+func (f *safeTimeFactory) Extend(rules []TimeRule) {
+	f.rw.Lock()
+	defer f.rw.Unlock()
+
+	f.f.Extend(rules)
+}
+
+// SetStartOfWeek implements the TimeFactory SetStartOfWeek method.
+func (f *safeTimeFactory) SetStartOfWeek(s StartOfWeek) {
+	f.rw.Lock()
+	defer f.rw.Unlock()
+
+	f.f.SetStartOfWeek(s)
+}
+
+func newSafeTimeFactory(f TimeFactory) TimeFactory {
+	return &safeTimeFactory{f: f}
+}
+
+// NewTimeFactory creates a time factory which is ready to extend and
+// safe for concurrent use by multiple goroutines.
+func NewTimeFactory() TimeFactory {
+	return newSafeTimeFactory(
+		NewNonblockingTimeFactory())
+}
+
+// NewNonblockingTimeFactory creates an unsafe time factory which is ready to extend.
+// It means that there is no synchronization mechanisms in it.
+// On the one hand extending of this factory is not a thread-safe operation,
+// but on the other hand it makes Make and Require methods to be non-blocking.
+// (eliminates the cache coherency problem)
+//
+// It might be useful when your application is under high load and your time factory
+// doesn't use Extend method at all or use it once during the init.
+func NewNonblockingTimeFactory() TimeFactory {
+	return newUnsafeTimeFactory(defaultRules, &defaultTimeStringer{})
 }
 
 // SetDefaultTimeFactory sets your own time factory as default.
@@ -179,7 +254,7 @@ func NewTimeFactory() *TimeFactory {
 // After that you can use NewTime or RequireTime functions
 // without concreting a factory like that rdate.NewTime(...)
 // or rdate.RequireTime(...))
-func SetDefaultTimeFactory(f *TimeFactory) {
+func SetDefaultTimeFactory(f TimeFactory) {
 	defaultTimeFactory = f
 }
 

@@ -21,7 +21,7 @@ func (r *myBirthdayTimeRule) Shortcut() rdate.TimeShortcut {
 	return "my birthday this year"
 }
 
-func ExampleTimeFactory_Extend() {
+func ExampleTimeFactory_extend() {
 	pivot := time.Date(2004, 3, 1, 0, 2, 1, 6, time.UTC)
 
 	f := rdate.NewTimeFactory()

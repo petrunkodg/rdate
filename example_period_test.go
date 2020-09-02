@@ -13,7 +13,7 @@ import (
 
 type prevDecadePeriodRule struct{}
 
-func (p *prevDecadePeriodRule) Calculate(pivot time.Time, tf *rdate.TimeFactory) (from, to rdate.Time) {
+func (p *prevDecadePeriodRule) Calculate(pivot time.Time, tf rdate.TimeFactory) (from, to rdate.Time) {
 	offset := pivot.Year() % 10
 	f := pivot.AddDate(-offset, 0, 0)
 
@@ -23,7 +23,7 @@ func (p *prevDecadePeriodRule) Calculate(pivot time.Time, tf *rdate.TimeFactory)
 
 func (p *prevDecadePeriodRule) Shortcut() rdate.PeriodShortcut { return "prev decade" }
 
-func ExamplePeriodFactory_Extend() {
+func ExamplePeriodFactory_extend() {
 	pivot := time.Date(1998, 3, 1, 0, 2, 1, 6, time.UTC)
 
 	f := rdate.NewPeriodFactory()

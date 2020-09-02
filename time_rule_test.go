@@ -25,8 +25,8 @@ func TestTimeRules_Perform(t *testing.T) {
 		{
 			name:     "StartOfThisDay",
 			rule:     &timeRuleStartOfThisDay{},
-			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC),
-			expected: time.Date(2019, 12, 11, 0, 0, 0, 0, time.UTC),
+			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.FixedZone("UTC-8", -8*60*60)),
+			expected: time.Date(2019, 12, 11, 0, 0, 0, 0, time.FixedZone("UTC-8", -8*60*60)),
 		},
 		{
 			name:     "EndOfThisDay",
@@ -37,8 +37,8 @@ func TestTimeRules_Perform(t *testing.T) {
 		{
 			name:     "StartOfPrevDay",
 			rule:     &timeRuleStartOfPrevDay{},
-			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC),
-			expected: time.Date(2019, 12, 10, 0, 0, 0, 0, time.UTC),
+			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.FixedZone("UTC+4", 4*60*60)),
+			expected: time.Date(2019, 12, 10, 0, 0, 0, 0, time.FixedZone("UTC+4", 4*60*60)),
 		},
 		{
 			name:     "EndOfPrevDay",
@@ -49,8 +49,8 @@ func TestTimeRules_Perform(t *testing.T) {
 		{
 			name:     "StartOfThisWeek",
 			rule:     &timeRuleStartOfThisWeek{},
-			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC),
-			expected: time.Date(2019, 12, 9, 0, 0, 0, 0, time.UTC),
+			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.FixedZone("UTC-1", -1*60*60)),
+			expected: time.Date(2019, 12, 9, 0, 0, 0, 0, time.FixedZone("UTC-1", -1*60*60)),
 		},
 		{
 			name:     "EndOfThisWeek",
@@ -73,8 +73,8 @@ func TestTimeRules_Perform(t *testing.T) {
 		{
 			name:     "StartOfThisWeekS(the first day of the week is Sunday)",
 			rule:     &timeRuleStartOfThisWeekS{},
-			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.UTC),
-			expected: time.Date(2019, 12, 8, 0, 0, 0, 0, time.UTC),
+			date:     time.Date(2019, 12, 11, 0, 2, 1, 6, time.FixedZone("UTC+8", 8*60*60)),
+			expected: time.Date(2019, 12, 8, 0, 0, 0, 0, time.FixedZone("UTC+8", 8*60*60)),
 		},
 		{
 			name:     "EndOfThisWeekS(the first day of the week is Sunday)",

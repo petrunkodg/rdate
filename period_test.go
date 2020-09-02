@@ -201,7 +201,7 @@ func TestRequirePeriod(t *testing.T) {
 type testPeriodRule struct{}
 
 func (p *testPeriodRule) Calculate(pivot time.Time,
-	tf *rdate.TimeFactory) (from, to rdate.Time) {
+	tf rdate.TimeFactory) (from, to rdate.Time) {
 	return tf.Require(time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC), rdate.TimeAsIs),
 		tf.Require(time.Date(2010, 3, 1, 0, 2, 1, 6, time.UTC), rdate.TimeAsIs)
 }

@@ -1,8 +1,7 @@
 GO=go
-GOPRIVATE?=gitlab.com/*
 
 modules:
-	GOPRIVATE=$(GOPRIVATE) $(GO) mod tidy -v
+	$(GO) mod tidy -v
 	$(GO) mod verify
 
 test: modules
